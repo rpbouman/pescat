@@ -128,41 +128,41 @@
   <target name="dist" depends="compile,jar,sign,expcert" description="generate the distribution" >
     <!-- Create the distribution directory -->
     <mkdir dir="${dist}"/>
-    <copy todir="${dist}">
+    <mkdir dir="${dist}/${ant.project.name}"/>
+    <copy todir="${dist}/${ant.project.name}">
       <fileset dir="${src}/plugin" includes="*.xml" />
     </copy>
 
-    <mkdir dir="${dist}/${resources}"/>
-    <copy todir="${dist}/${resources}">
+    <mkdir dir="${dist}/${ant.project.name}/${resources}"/>
+    <copy todir="${dist}/${ant.project.name}/${resources}">
       <fileset dir="${resources}" includes="**"/>
     </copy>
 
-    <mkdir dir="${dist}/${resources}/${js}"/>
-    <copy todir="${dist}/${resources}/${js}">
+    <mkdir dir="${dist}/${ant.project.name}/${resources}/${js}"/>
+    <copy todir="${dist}/${ant.project.name}/${resources}/${js}">
       <fileset dir="${src}/${js}" includes="**"/>
     </copy>
 
-    <mkdir dir="${dist}/${resources}/${css}"/>
-    <copy todir="${dist}/${resources}/${css}">
+    <mkdir dir="${dist}/${ant.project.name}/${resources}/${css}"/>
+    <copy todir="${dist}/${ant.project.name}/${resources}/${css}">
       <fileset dir="${src}/${css}" includes="**"/>
     </copy>
 
-    <mkdir dir="${dist}/${resources}/${html}"/>
-    <copy todir="${dist}/${resources}/${html}">
+    <mkdir dir="${dist}/${ant.project.name}/${resources}/${html}"/>
+    <copy todir="${dist}/${ant.project.name}/${resources}/${html}">
       <fileset dir="${src}/${html}" includes="**"/>
     </copy>
 
-    <mkdir dir="${dist}/lib"/>
-    <copy todir="${dist}/lib">
+    <mkdir dir="${dist}/${ant.project.name}/lib"/>
+    <copy todir="${dist}/${ant.project.name}/lib">
       <fileset dir="${signedjar}"/>
     </copy>
+
     <delete file="$zip"/>
     <zip destfile="${zip}">
-      <fileset dir="${dist}" excludes="*.zip"/>
+      <zipfileset dir="${dist}/${ant.project.name}" prefix="${ant.project.name}"/>
     </zip>
-    <delete>
-      <fileset dir="${dist}" excludes="*.zip"/>
-    </delete>
+    <delete dir="${dist}/${ant.project.name}"/>
   </target>
 
   <target name="deploy" depends="shutdown,dist">
