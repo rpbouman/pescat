@@ -166,8 +166,7 @@
   </target>
 
   <target name="deploy" depends="shutdown,dist">
-    <mkdir dir="${plugindir}"/>
-    <unzip src="${zip}" dest="${plugindir}"/>
+    <unzip src="${zip}" dest="${system-solution}"/>
   </target>
 
   <target name="trust" depends="deploy">

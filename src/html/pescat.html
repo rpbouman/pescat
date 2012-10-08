@@ -29,10 +29,12 @@
     <div id="ruler"></div>
     <script type="text/javascript">
       var pescatInstance = window.parent.pescatInstance;
+      //sizes in pixels
       var imageWidth = pescatInstance.imageWidth;
       var imageHeight = pescatInstance.imageHeight;
-      var rulerWidth = "100mm";
-
+      //sizes in millimeter
+      var rulerWidth = "100";
+      var margins = "20";
       var paperSizes = {
         "A4": [210, 297],
         "A3": [297, 420],
@@ -60,12 +62,16 @@
         return document.getElementById("ruler");
       };
 
+      window.getScreenshot = function(){
+        return document.getElementById("screenshot");
+      }
+
      window.getPaperSize = function() {
         var paperSizeSelect = window.getPaperSizeSelect();
         var index = paperSizeSelect.selectedIndex;
         var option = paperSizeSelect.options[index];
         paperSize = option.value;
-        return paperSizes.paperSize;
+        return paperSizes[paperSize];
       };
 
       window.getOrientation = function() {
@@ -83,14 +89,10 @@
         }
       };
 
-      window.pixelsPerMm(){
-        var ruler = document.getElementById("ruler");
-      }
-
       window.applySettings = function() {
+        var ruler = getRuler();
         var paperSize = getPaperSize();
         var orientation = getOrientation();
-        var ruler = document.getElementById("ruler");
         var h, w;
         if (orientation === "portrait") {
           w = paperSize[0];
@@ -101,12 +103,26 @@
           w = paperSize[1];
           h = paperSize[0];
         }
-
+        var iw = imageWidth / ruler.clientWidth * rulerWidth;
+        var ih = imageHeight / ruler.clientWidth * rulerWidth;
+        if (iw > w || ih > h) {
+          var screenshot = getScreenshot();
+          var wFactor = w / iw;
+          var hFactor = h / ih;
+          var factor;
+          if (wFactor > hFactor) {
+            factor = hFactor;
+          }
+          else {
+            factor = wFactor;
+          }
+          screenshot.height = factor * imageHeight;
+          screenshot.width = factor * imageWidth;
+        }
       };
 
       window.renderScreenshot = function(data, width, height) {
-        var doc = document;
-        var screenshot = doc.getElementById("screenshot");
+        var screenshot = getScreenshot();
         screenshot.src = "data:image/png;base64,"  + data;
         imageWidth = width;
         imageHeight = height;
