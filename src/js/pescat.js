@@ -161,7 +161,7 @@ pen.define(function(){
         var allowDefault = tabWidget.dispatchEvent(evt);
       }
     },
-    captureCurrentContent: function(){
+    captureCurrentContent: function(usage){
       var me = this;
       me.acquireApplet(
         function(applet) {
@@ -178,7 +178,7 @@ pen.define(function(){
           me.imageHeight = h;
           var callback = "pescatCaptureCallback";
           var imageFormat = "png";
-          var encoding = "base64";
+          var encoding = (usage === "capture" ? "clipboard" : "base64");
           me.capture(
             x, y, w, h,
             callback,

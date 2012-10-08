@@ -7,8 +7,15 @@ import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.Robot;
 import java.awt.Rectangle;
+import java.awt.Toolkit;
+
+import java.awt.datatransfer.ClipboardOwner;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.Transferable;
+import java.awt.datatransfer.DataFlavor;
 
 import java.awt.image.BufferedImage;
+import java.awt.Image;
 
 import java.lang.reflect.Method;
 
@@ -26,9 +33,11 @@ import javax.imageio.ImageIO;
 import netscape.javascript.JSObject;
 import sun.misc.BASE64Encoder;
 
-public class ScreenshotApplet extends Applet {
+public class ScreenshotApplet extends Applet implements ClipboardOwner, Transferable {
 
   protected Robot robot;
+  protected Image image;
+  protected static DataFlavor[] dataFlavors = new DataFlavor[] {DataFlavor.imageFlavor};
   protected String status = "ready";
   protected String callback = null;
   protected String result = null;
@@ -49,15 +58,40 @@ public class ScreenshotApplet extends Applet {
     win.call(lifecycleListener, args);
   }
 
+  //implement from ClipboardOwner
+  public void lostOwnership(Clipboard clipboard, Transferable contents) {
+  }
+
+  //implement from Transferable
+  public Object getTransferData(DataFlavor flavor) {
+    return image;
+  }
+
+  //implement from Transferable
+  public DataFlavor[] getTransferDataFlavors() {
+    return dataFlavors;
+  }
+
+  //implement from Transferable
+  public boolean isDataFlavorSupported(DataFlavor dataFlavor) {
+    return dataFlavor == DataFlavor.imageFlavor;
+  }
+
+  //override from applet
   public void start(){
+    super.start();
     notifyLifecycleListener("start");
   }
 
+  //override from applet
   public void stop(){
+    super.stop();
     notifyLifecycleListener("stop");
   }
 
+  //override from applet
   public void destroy(){
+    super.destroy();
     notifyLifecycleListener("destroy");
   }
 
@@ -143,12 +177,29 @@ public class ScreenshotApplet extends Applet {
       }
     );
 
-    setStatus("write image");
-    ByteArrayOutputStream os = new ByteArrayOutputStream();
-    ImageIO.write(image, imageFormat, os);
-    setStatus("get image data");
-    byte[] imageData = os.toByteArray();
-    encodeImage(imageData, encoding);
+    if ("clipboard".equals(encoding)) {
+      this.image = image;
+      setStatus("acquire clipboard");
+      Clipboard clipboard = (Clipboard)doPrivileged(
+        new PrivilegedAction() {
+          public Object run() {
+            Toolkit toolkit = Toolkit.getDefaultToolkit();
+            return toolkit.getSystemClipboard();
+          }
+        }
+      );
+      setStatus("writing clipboard");
+      clipboard.setContents(this, this);
+      setStatus("clipboard written");
+    }
+    else {
+      setStatus("write image");
+      ByteArrayOutputStream os = new ByteArrayOutputStream();
+      ImageIO.write(image, imageFormat, os);
+      setStatus("get image data");
+      byte[] imageData = os.toByteArray();
+      encodeImage(imageData, encoding);
+    }
   }
 
   protected void encodeImage(

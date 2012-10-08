@@ -6,9 +6,16 @@
       <overlay id="startup.pescatToolbar" resourcebundle="../content/pescat/resources/messages/messages.properties">
         <toolbar id="mainToolbar">
           <toolbarbutton
+            id="pescatToolbarPrintButton"
+            image="../content/pescat/resources/images/gnome-dev-printer-network.png"
+            onclick="mainToolbarHandler.executeMantleFunc('pescatPrint()')"
+            tooltiptext="${pescat.capture.tooltip}"
+            insertafter="newAnalysisButton"
+          />
+          <toolbarbutton
             id="pescatToolbarCaptureButton"
             image="../content/pescat/resources/images/camera-photo-2.png"
-            onclick="mainToolbarHandler.executeMantleFunc('pescat()')"
+            onclick="mainToolbarHandler.executeMantleFunc('pescatCapture()')"
             tooltiptext="${pescat.capture.tooltip}"
             insertafter="newAnalysisButton"
           />

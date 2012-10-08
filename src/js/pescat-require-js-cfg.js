@@ -4,8 +4,13 @@ if (document.location.href.indexOf("debug=true") > 0) {
 //  path += "/compressed";
 }
 requireCfg.paths.pescat = path;
-function pescat() {
+function pescatPrint() {
   pen.require(["pescat/pescat"], function(pescat){
-    pescat.captureCurrentContent();
+    pescat.captureCurrentContent("print");
+  })
+}
+function pescatCapture() {
+  pen.require(["pescat/pescat"], function(pescat){
+    pescat.captureCurrentContent("capture");
   })
 }
