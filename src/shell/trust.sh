@@ -1,0 +1,2 @@
+rm /home/rbouman/pentaho-ce/biserver/biserver-ce-4.6-315/biserver-ce/pentaho-solutions/system/pescat/lib/keystore.ks
+keytool -import -keystore /home/rbouman/pentaho-ce/biserver/biserver-ce-4.6-315/biserver-ce/pentaho-solutions/system/pescat/lib/keystore.ks -storepass password -alias Roland -file /home/rbouman/pentaho-ce/biserver/biserver-ce-4.6-315/biserver-ce/pentaho-solutions/system/pescat/lib/pescat.cert -noprompt

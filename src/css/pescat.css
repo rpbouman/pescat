@@ -1,0 +1,19 @@
+#ruler, html, body, #screenshot, #screenshot-container {
+  margin:0px;
+  padding:0px
+}
+
+#ruler {
+  position:absolute;
+  width: 100mm;
+  height: 10mm;
+}
+
+.label:after {
+  content: ": "
+}
+
+button:after {
+  content: "..."
+}
+

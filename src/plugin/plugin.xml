@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin title="Pentaho Screen Capture Tool">
+
+  <overlays>
+    <overlay id="startup.pescatToolbar" resourcebundle="../content/pescat/resources/messages/messages.properties">
+      <overlay id="startup.pescatToolbar" resourcebundle="../content/pescat/resources/messages/messages.properties">
+        <toolbar id="mainToolbar">
+          <toolbarbutton
+            id="pescatToolbarCaptureButton"
+            image="../content/pescat/resources/images/camera-photo-2.png"
+            onclick="mainToolbarHandler.executeMantleFunc('pescat()')"
+            tooltiptext="${pescat.capture.tooltip}"
+            insertafter="newAnalysisButton"
+          />
+        </toolbar>
+      </overlay>
+    </overlay>
+  </overlays>
+
+  <static-paths>
+    <static-path url="/pescat/lib" localFolder="lib"/>
+    <static-path url="/pescat/resources/js" localFolder="resources/js"/>
+    <static-path url="/pescat/resources/css" localFolder="resources/css"/>
+    <static-path url="/pescat/resources/images" localFolder="resources/images"/>
+    <static-path url="/pescat/resources/html" localFolder="resources/html"/>
+  </static-paths>
+
+  <external-resources>
+    <file context="requirejs">content/pescat/resources/js/pescat-require-js-cfg.js</file>
+  </external-resources>
+
+</plugin>

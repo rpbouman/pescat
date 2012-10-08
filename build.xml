@@ -1,0 +1,213 @@
+<project
+  name="pescat"
+  default="dist"
+  basedir="."
+>
+  <description>
+    Screenshot applet build file
+  </description>
+
+  <!-- Options -->
+  <property name="nowarn"           value="on"/>
+  <property name="sleep"            value="2"/>
+  <property name="bihost"           value="localhost"/>
+  <property name="biport"           value="8080"/>
+  <property name="biuser"           value="joe"/>
+  <property name="bipasswd"         value="password"/>
+  <property name="bihome"           value="http://${bihost}:${biport}/pentaho?userid=${biuser}&amp;password=${bipasswd}"/>
+
+  <!-- files and paths -->
+  <property name="src"              location="src"/>
+  <property name="java"             location="${src}/java"/>
+  <property name="js"               value="js"/>
+  <property name="css"              value="css"/>
+  <property name="html"             value="html"/>
+  <property name="resources"        value="resources"/>
+  <property name="dist"             value="dist"/>
+  <property name="build"            location="build"/>
+  <property name="jar"              location="jar"/>
+  <property name="signedjar"        location="signedjar"/>
+  <property name="jarfile"          location="${jar}/${ant.project.name}.jar"/>
+  <property name="deploy"           location="deploy"/>
+  <property name="zip"              location="${dist}/${ant.project.name}.zip"/>
+  <property name="biserver"         location="/home/rbouman/pentaho-ce/biserver/biserver-ce-4.6-315/biserver-ce"/>
+  <property name="system-solution"  location="${biserver}/pentaho-solutions/system"/>
+  <property name="plugindir"        location="${system-solution}/${ant.project.name}"/>
+  <property name="browser"          value="chromium-browser"/>
+
+  <path id="classpath">
+    <fileset dir="${java.home}/lib"/>
+  </path>
+
+  <!-- key / certificate -->
+  <property name="keyalias"     value="Roland"/>
+  <property name="keystorepass" value="p@55w0rd"/>
+  <property name="keystore"     value="keystore.ks"/>
+  <property name="keysigner"    value="Roland Bouman"/>
+  <property name="keyorg"       value="Pentaho"/>
+  <property name="keyorgunit"   value="Engineering"/>
+  <property name="keycity"      value="Orlando"/>
+  <property name="keystate"     value="FL"/>
+  <property name="keycountry"   value="US"/>
+  <property name="certificate"  value="${ant.project.name}.cert"/>
+
+  <!-- targets -->
+  <target name="init">
+    <!-- Create the time stamp -->
+    <tstamp/>
+    <!-- Create the build directory structure used by compile -->
+    <mkdir dir="${build}"/>
+  </target>
+
+  <target name="genkey" depends="init">
+    <delete file="${build}/${keystore}" failonerror="false" />
+    <genkey
+      alias="${keyalias}"
+      storepass="${keystorepass}"
+      keystore="${build}/${keystore}"
+    >
+      <dname>
+        <param name="CN"  value="${keysigner}"/>
+        <param name="OU"  value="${keyorgunit}"/>
+        <param name="O"   value="${keyorg}"/>
+        <param name="L"   value="${keycity}"/>
+        <param name="ST"  value="${keystate}"/>
+        <param name="C"   value="${keycountry}"/>
+      </dname>
+   </genkey>
+  </target>
+
+  <target
+    name="compile"
+    depends="init"
+    description="compile the source "
+  >
+    <!-- Compile the java code from ${src} into ${build} -->
+    <echo message="Java home: ${java.home}"/>
+    <echo message="nowarn: ${nowarn}"/>
+    <javac
+      srcdir="${java}"
+      destdir="${build}"
+      nowarn="${nowarn}"
+    >
+      <classpath refid="classpath"/>
+    </javac>
+  </target>
+
+  <target name="jar" depends="compile">
+    <mkdir dir="${jar}"/>
+    <jar basedir="${build}" destfile="${jarfile}"/>
+  </target>
+
+  <target name="sign" depends="genkey">
+    <mkdir dir="${signedjar}"/>
+    <signjar
+      destDir="${signedjar}"
+      alias="${keyalias}"
+      keystore="${build}/${keystore}"
+      storepass="${keystorepass}"
+      preservelastmodified="true"
+    >
+      <path>
+        <fileset dir="${jar}" includes="*.jar" />
+      </path>
+      <flattenmapper />
+    </signjar>
+  </target>
+
+  <target name="expcert" depends="sign">
+    <exec executable="keytool">
+      <arg value="-export"/>
+      <arg value="-keystore"/><arg value="${build}/${keystore}"/>
+      <arg value="-storepass"/><arg value="${keystorepass}"/>
+      <arg value="-alias"/><arg value="${keyalias}"/>
+      <arg value="-file"/><arg value="${signedjar}/${certificate}"/>
+    </exec>
+  </target>
+
+  <target name="dist" depends="compile,jar,sign,expcert" description="generate the distribution" >
+    <!-- Create the distribution directory -->
+    <mkdir dir="${dist}"/>
+    <copy todir="${dist}">
+      <fileset dir="${src}/plugin" includes="*.xml" />
+    </copy>
+
+    <mkdir dir="${dist}/${resources}"/>
+    <copy todir="${dist}/${resources}">
+      <fileset dir="${resources}" includes="**"/>
+    </copy>
+
+    <mkdir dir="${dist}/${resources}/${js}"/>
+    <copy todir="${dist}/${resources}/${js}">
+      <fileset dir="${src}/${js}" includes="**"/>
+    </copy>
+
+    <mkdir dir="${dist}/${resources}/${css}"/>
+    <copy todir="${dist}/${resources}/${css}">
+      <fileset dir="${src}/${css}" includes="**"/>
+    </copy>
+
+    <mkdir dir="${dist}/${resources}/${html}"/>
+    <copy todir="${dist}/${resources}/${html}">
+      <fileset dir="${src}/${html}" includes="**"/>
+    </copy>
+
+    <mkdir dir="${dist}/lib"/>
+    <copy todir="${dist}/lib">
+      <fileset dir="${signedjar}"/>
+    </copy>
+    <delete file="$zip"/>
+    <zip destfile="${zip}">
+      <fileset dir="${dist}" excludes="*.zip"/>
+    </zip>
+    <delete>
+      <fileset dir="${dist}" excludes="*.zip"/>
+    </delete>
+  </target>
+
+  <target name="deploy" depends="shutdown,dist">
+    <mkdir dir="${plugindir}"/>
+    <unzip src="${zip}" dest="${plugindir}"/>
+  </target>
+
+  <target name="trust" depends="deploy">
+    <delete file="${plugindir}/lib/${keystore}"/>
+    <exec executable="keytool">
+      <arg value="-import"/>
+      <arg value="-alias"/><arg value="${keyalias}"/>
+      <arg value="-file"/><arg value="${plugindir}/lib/${certificate}"/>
+      <arg value="-noprompt"/>
+      <arg value="-storepass"/><arg value="${keystorepass}"/>
+      <arg value="-keystore"/><arg value="${plugindir}/lib/${keystore}"/>
+    </exec>
+  </target>
+
+  <target name="startup" depends="shutdown">
+    <echo message="Sleeping for ${sleep} seconds to allow the server to shutdown."/>
+    <sleep seconds="${sleep}"/>
+    <exec executable="${biserver}/start-pentaho.sh" spawn="true"/>
+  </target>
+
+  <target name="shutdown">
+    <exec executable="${biserver}/stop-pentaho.sh" spawn="true"/>
+  </target>
+
+  <target name="launch" depends="trust,startup">
+    <echo message="Sleeping for ${sleep} seconds to allow the server to startup."/>
+    <sleep seconds="${sleep}"/>
+    <exec executable="${browser}" spawn="true">
+      <arg value="${bihome}"/>
+    </exec>
+  </target>
+
+  <target name="clean"
+        description="clean up" >
+    <!-- Delete the ${build} and ${dist} directory trees -->
+    <delete dir="${build}" failonerror="false"/>
+    <delete dir="${jar}" failonerror="false"/>
+    <delete dir="${signedjar}" failonerror="false"/>
+    <delete dir="${dist}" failonerror="false"/>
+    <delete dir="${deploy}" failonerror="false"/>
+    <delete dir="${plugindir}" failonerror="false"/>
+  </target>
+</project>

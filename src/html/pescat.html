@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="Type=text/html; charset=utf-8" />
+    <title>Pescat</title>
+    <link rel="stylesheet" type="text/css" href="../css/pescat.css"/>
+    <script type="text/javascript">
+      var CONTEXT_PATH = parent.CONTEXT_PATH;
+      var active_theme = parent.active_theme;
+      var core_theme_tree = parent.core_theme_tree;
+      var module_theme_tree = parent.module_theme_tree;
+    </script>
+    <script type="text/javascript" src="/pentaho/js/themeResources.js"></script>
+  </head>
+  <body>
+    <div id="toolbar" class="toolbar mainToolbar">
+      <label class="label">Paper size</label>
+      <select id="paperSize" onchange="applySettings()">
+      </select>
+      <label class="label">Page Orientation</label>
+      <input type="radio" name="orientation" id="portrait" onclick="applySettings()" checked="true"/><label class="radio">Portrait</label>
+      <input type="radio" name="orientation" id="landscape" onclick="applySettings()"/><label class="radio">Landscape</label>
+      <button class="pentaho-button" onclick="doPrint()">Print</button>
+      <button class="pentaho-button" onclick="toClipboard()">Clipboard</button>
+    </div>
+    <div id="screenshot-container">
+      <img id="screenshot" />
+    </div>
+    <div id="ruler"></div>
+    <script type="text/javascript">
+      var pescatInstance = window.parent.pescatInstance;
+      var imageWidth = pescatInstance.imageWidth;
+      var imageHeight = pescatInstance.imageHeight;
+      var rulerWidth = "100mm";
+
+      var paperSizes = {
+        "A4": [210, 297],
+        "A3": [297, 420],
+        "Legal": [215.9, 355.6],
+        "Letter": [215.9, 279.4]
+      };
+
+      window.onload = function(){
+        pescatInstance.renderScreenshot();
+      };
+
+      window.doPrint = function(){
+        var toolbar = document.getElementById("toolbar");
+        var style = toolbar.style;
+        style.display = "none";
+        window.print();
+        style.display = "";
+      };
+
+      window.getPaperSizeSelect = function() {
+        return document.getElementById("paperSize");
+      };
+
+      window.getRuler = function() {
+        return document.getElementById("ruler");
+      };
+
+     window.getPaperSize = function() {
+        var paperSizeSelect = window.getPaperSizeSelect();
+        var index = paperSizeSelect.selectedIndex;
+        var option = paperSizeSelect.options[index];
+        paperSize = option.value;
+        return paperSizes.paperSize;
+      };
+
+      window.getOrientation = function() {
+        var portrait = document.getElementById("portrait");
+        var landscape = document.getElementById("landscape");
+        if (portrait.checked) {
+          return "portrait";
+        }
+        else
+        if (landscape.checked) {
+          return "landscape";
+        }
+        else {
+          throw "No selection";
+        }
+      };
+
+      window.pixelsPerMm(){
+        var ruler = document.getElementById("ruler");
+      }
+
+      window.applySettings = function() {
+        var paperSize = getPaperSize();
+        var orientation = getOrientation();
+        var ruler = document.getElementById("ruler");
+        var h, w;
+        if (orientation === "portrait") {
+          w = paperSize[0];
+          h = paperSize[1];
+        }
+        else
+        if (orientation === "landscape") {
+          w = paperSize[1];
+          h = paperSize[0];
+        }
+
+      };
+
+      window.renderScreenshot = function(data, width, height) {
+        var doc = document;
+        var screenshot = doc.getElementById("screenshot");
+        screenshot.src = "data:image/png;base64,"  + data;
+        imageWidth = width;
+        imageHeight = height;
+      };
+
+      window.init = function() {
+        var paperSize, option
+            paperSizeSelect = getPaperSizeSelect(),
+            ruler = getRuler();
+        ;
+        for (paperSize in paperSizes) {
+          option = document.createElement("OPTION");
+          option.innerHTML = paperSize;
+          option.value = paperSize;
+          option.label = paperSize;
+          paperSizeSelect.appendChild(option);
+        }
+        applySettings();
+      };
+
+      init();
+    </script>
+  </body>
+</html>

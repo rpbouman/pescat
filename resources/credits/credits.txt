@@ -1,0 +1,5 @@
+print icon:
+http://openiconlibrary.sourceforge.net/gallery2/?./Icons/devices/gnome-dev-printer-network.png
+
+camera icon
+http://openiconlibrary.sourceforge.net/gallery2/?./Icons/devices/camera-photo-2.png
