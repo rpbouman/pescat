@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="Type=text/html; charset=utf-8" />
+    <title>Print settings</title>
+    <link rel="stylesheet" type="text/css" href="../css/pescat-settings.css"/>
+    <script type="text/javascript" src="/pentaho/webcontext.js?context=pescat"></script>
+    <script type="text/javascript" src="/pentaho/js/themeResources.js"></script>
+  </head>
+  <body>
+    <div id="toolbar" class="toolbar mainToolbar">
+      <label class="label" id="paperSizeLabel">Paper size</label>
+      <select id="paperSize">
+      </select>
+      <label class="label" id="orientationLabel">Page Orientation</label>
+      <input type="radio" name="orientation" id="portrait" checked="true"/><label id="portraitLabel" class="radio">Portrait</label>
+      <input type="radio" name="orientation" id="landscape"/><label id="landscapeLabel" class="radio">Landscape</label>
+      <button class="pentaho-button" id="printButton">Print</button>
+      <button class="pentaho-button" id="copyToClipboardButton">Copy to clipboard</button>
+    </div>
+    <div id="screenshot-container">
+      <img id="screenshot" />
+    </div>
+    <div id="ruler"></div>
+  </body>
+</html>

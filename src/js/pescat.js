@@ -45,7 +45,7 @@ pen.define(function(){
                    "\/>" +
                   "</applet>"
       ;
-      me = this;
+      var me = this;
       window[lifecycleListener] = function(name, status) {
         if (status === "start") setTimeout(function(){
           callback(me.getApplet());
@@ -193,10 +193,10 @@ pen.define(function(){
       return frame;
     },
     openPescatTab: function(){
-      var name = "pescat";
-      var title = "Pescat";
+      var name = "Print settings";
+      var title = "Print settings";
       var frameName = "pescatFrame";
-      var url = CONTEXT_PATH + "/content/pescat/resources/html/pescat.html";
+      var url = CONTEXT_PATH + "/content/pescat/resources/html/pescat-settings.html";
       mantle_openNamedFrameTab(name, title, frameName, url);
     },
     renderScreenshot: function () {
@@ -205,11 +205,10 @@ pen.define(function(){
         this.openPescatTab();
         return;
       }
-      var result = self.parent.pescatInstance.result;
-      if (result === null) return;
+      if (this.result === null) return;
       //var win = frame.contentWindow;
       var win = frame;
-      win.renderScreenshot(result, this.imageWidth, this.imageHeight);
+      win.pescatSettings.renderScreenshot();
       this.activateTab();
     }
   };

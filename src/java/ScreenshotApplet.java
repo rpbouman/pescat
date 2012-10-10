@@ -162,14 +162,14 @@ public class ScreenshotApplet extends Applet implements ClipboardOwner, Transfer
 
   protected void captureScreen(
     int x, int y, int w, int h,
-    String imageFormat,
+    final String imageFormat,
     String encoding
   ) throws Exception {
     setStatus("create rect");
     final Rectangle rect = new Rectangle(x, y, w, h);
     setStatus("start capture");
 
-    BufferedImage image = (BufferedImage) doPrivileged(
+    final BufferedImage image = (BufferedImage) doPrivileged(
       new PrivilegedAction(){
         public Object run(){
           return robot.createScreenCapture(rect);
@@ -194,8 +194,22 @@ public class ScreenshotApplet extends Applet implements ClipboardOwner, Transfer
     }
     else {
       setStatus("write image");
-      ByteArrayOutputStream os = new ByteArrayOutputStream();
-      ImageIO.write(image, imageFormat, os);
+      final ByteArrayOutputStream os = new ByteArrayOutputStream();
+      //this needs to be privileged because it could write a temporary file.
+      IOException ioexception = (IOException)doPrivileged(
+        new PrivilegedAction(){
+          public Object run() {
+            try {
+              ImageIO.write(image, imageFormat, os);
+              return null;
+            }
+            catch (IOException e) {
+              return e;
+            }
+          }
+        }
+      );
+      if (ioexception != null) throw ioexception;
       setStatus("get image data");
       byte[] imageData = os.toByteArray();
       encodeImage(imageData, encoding);

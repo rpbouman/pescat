@@ -10,8 +10,9 @@
             image="../content/pescat/resources/images/gnome-dev-printer-network.png"
             onclick="mainToolbarHandler.executeMantleFunc('pescatPrint()')"
             tooltiptext="${pescat.capture.tooltip}"
-            insertafter="newAnalysisButton"
+            insertafter="saveAsButton"
           />
+          <!--
           <toolbarbutton
             id="pescatToolbarCaptureButton"
             image="../content/pescat/resources/images/camera-photo-2.png"
@@ -19,6 +20,7 @@
             tooltiptext="${pescat.capture.tooltip}"
             insertafter="newAnalysisButton"
           />
+          -->
         </toolbar>
       </overlay>
     </overlay>
@@ -34,6 +36,7 @@
 
   <external-resources>
     <file context="requirejs">content/pescat/resources/js/pescat-require-js-cfg.js</file>
+    <file context="pescat">content/pescat/resources/js/pescat-settings-require-js-cfg.js</file>
   </external-resources>
 
 </plugin>
